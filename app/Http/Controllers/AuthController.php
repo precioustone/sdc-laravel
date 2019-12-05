@@ -5,10 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use Tymon\JWTAuth\Facades\JWTFactory;
+use App\User;
+use Hash;
+use Exception;
 
 class AuthController extends Controller
 {
-        /**
+    protected $username = 'username';
+    /**
      * Create a new AuthController instance.
      *
      * @return void
@@ -16,6 +21,24 @@ class AuthController extends Controller
     public function __construct()
     {
         $this->middleware('auth:api', ['except' => ['login']]);
+    }
+    /**
+     * Create a User
+     * @param  Request $request
+     * @return [type]
+     */
+    public function register(Request $request)
+    {
+    	$input = $request->all();
+        $input['password'] = Hash::make($input['password']);
+        //return response()->json(['cred' => json_encode($input)], 201);
+        try {
+            User::create($input);
+            return response()->json(['result'=>true]);
+        } catch (Exception $e) {
+            //return response()->json(['error'=> 'Something Went Wrong!!']);
+            return response()->json(['error'=> $e->getMessage()]);
+        }
     }
 
     /**
@@ -27,12 +50,17 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
-
-        if ($token = $this->guard()->attempt($credentials)) {
-            return $this->respondWithToken($token);
+        $credentials = $request->only('username', 'password');
+        
+        $user = User::where('username', $request->username)->first();
+        //return response()->json(['cred' => json_encode($user)], 201);
+        if (Hash::check($request->password, $user->password))
+        {
+            $token = $this->guard()->attempt($credentials);
+            if ($token) {
+                return $this->respondWithToken($token);
+            }
         }
-
         return response()->json(['error' => 'Unauthorized'], 401);
     }
 
@@ -41,9 +69,9 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function me()
+    public function test()
     {
-        return response()->json($this->guard()->user());
+        return response()->json(['status' => 200, 'message' => 'succcesful',]);
     }
 
     /**
@@ -78,9 +106,9 @@ class AuthController extends Controller
     protected function respondWithToken($token)
     {
         return response()->json([
-            'access_token' => $token,
+            'token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => $this->guard()->factory()->getTTL() * 60
+            'expiredAt' => $this->guard()->factory()->getTTL() * 60
         ]);
     }
 

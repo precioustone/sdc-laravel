@@ -13,13 +13,9 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::get('/', function(){
-    return response()->json(['status' => 200, 'message' => 'succcesful',]);
-  });  //generate token
+  return response()->json(['status' => 200, 'message' => 'succcesful',]);
+});  //generate token
 Route::post('register', 'AuthController@register');  //generate token
 Route::post('login', 'AuthController@login');  //generate token
 Route::post('logout', 'AuthController@logout'); // logout will make the token to blacklisted you have to create token again from login route
@@ -28,5 +24,5 @@ Route::post('secret/test', 'AuthController@test');
 
 //On Unauthorized Login
 Route::get('error', function(){
-return response()->json(['error' => 'Invalid Token']);
+  return response()->json(['error' => 'Invalid Token']);
 })->name('login');
