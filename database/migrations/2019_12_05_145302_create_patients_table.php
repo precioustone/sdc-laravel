@@ -22,6 +22,7 @@ class CreatePatientsTable extends Migration
             $table->string('home');
             $table->string('phone');
             $table->string('occupation');
+            $table->string('avatar');
             $table->timestamps();
         });
     }

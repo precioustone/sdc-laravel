@@ -15,13 +15,14 @@ class CreateRecordsTable extends Migration
     {
         Schema::create('records', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->foreign('user_id')references('id')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id');
             $table->string('complaint');
             $table->string('history');
             $table->string('IOE');
             $table->string('Diagnosis');
             $table->string('Txplan');
             $table->timestamps();
+            $table->foreign('user_id')->references('id')->on('patients')->onDelete('cascade');
         });
     }
 
